@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/button_border.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/home_icon.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_baseline_online_prediction_24.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_home_selected.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_home_unselected.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_lock_black_24dp.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_profile_circled.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/ic_profile_selected.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/meeting_icon.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/profile_icon.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/selected_room.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_login_screen.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_main.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_profile_image.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_registration_screen.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_splash_screen.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/banned_alert_dialog_screen.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_hom_screen.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_profile_screen.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_room_screen.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/room_item.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/user_item.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/menu/bottom_menu.xml" value="0.20416666666666666" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

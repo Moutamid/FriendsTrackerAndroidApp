@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="Write your Meeting Room Name here!"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="20dp"
+            android:inputType="text"
+            android:id="@+id/name"
+            android:hint="Room Name"
+            android:padding="8dp"/>
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Create"
+            android:layout_marginTop="20dp"
+            android:id="@+id/ok"
+            android:visibility="visible"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_border"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Cancel"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:id="@+id/cancel"
+            android:textColor="@android:color/black"
+            android:background="@drawable/button_border"
+            android:backgroundTint="#FFF"/>
+
+    </LinearLayout>
+
+</LinearLayout>

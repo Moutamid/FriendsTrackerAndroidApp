@@ -1,0 +1,72 @@
+package com.moutamid.friendsmeetingtracker.Adapters;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
+import com.moutamid.friendsmeetingtracker.Model.Room;
+import com.moutamid.friendsmeetingtracker.Model.User;
+import com.moutamid.friendsmeetingtracker.R;
+
+import java.util.ArrayList;
+
+public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHolder>{
+
+    private Context context;
+    private ArrayList<Room> userArrayList;
+    private ItemClickListener itemClickListener;
+
+    public RoomListAdapter(Context context, ArrayList<Room> userArrayList) {
+        this.context = context;
+        this.userArrayList = userArrayList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.room_item,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Room model = userArrayList.get(position);
+        holder.nameTxt.setText(model.getName());
+        Glide.with(context)
+                .load(R.drawable.profile)
+                .into(holder.profileImg);
+    }
+
+    @Override
+    public int getItemCount() {
+        return userArrayList.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder{
+
+        private ImageView profileImg;
+        private TextView nameTxt;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            profileImg = itemView.findViewById(R.id.imgProfile);
+            nameTxt = itemView.findViewById(R.id.userNames);
+
+        }
+    }
+
+    public void setItemClickListener(ItemClickListener itemClickListener){
+        this.itemClickListener = itemClickListener;
+    }
+
+}
