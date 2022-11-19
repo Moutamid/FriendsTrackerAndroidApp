@@ -1,11 +1,19 @@
 package com.moutamid.friendsmeetingtracker.Fragments;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,10 +21,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,15 +40,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.moutamid.friendsmeetingtracker.Adapters.UserListAdapter;
 import com.moutamid.friendsmeetingtracker.Constants.Constants;
 import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
+import com.moutamid.friendsmeetingtracker.MapsActivity;
 import com.moutamid.friendsmeetingtracker.Model.Room;
 import com.moutamid.friendsmeetingtracker.Model.User;
 import com.moutamid.friendsmeetingtracker.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class HomeScreen extends Fragment {
+public class HomeScreen extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private TextView nameTxt,createBtn;
     private CircleImageView profileImg;
@@ -44,6 +62,12 @@ public class HomeScreen extends Fragment {
     private ArrayList<User> userArrayList;
     private boolean isCreated = false;
     private ArrayList<String> userId = new ArrayList<>();
+    private String description = "";
+    private GoogleApiClient client;
+    private LocationRequest locationRequest;
+    double currentLat, currentLng = 0;
+    private static final int REQUEST_LOCATION = 1;
+    private Activity mActivity;
 
     @Nullable
     @Override
@@ -58,6 +82,17 @@ public class HomeScreen extends Fragment {
         db = Constants.databaseReference().child("Users");
         roomDB = Constants.databaseReference().child("Rooms");
         userArrayList = new ArrayList<>();
+        mActivity = getActivity();
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            bulidGoogleApiClient();
+        } else {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.CALL_PHONE}, REQUEST_LOCATION);
+        }
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,11 +114,24 @@ public class HomeScreen extends Fragment {
         return root;
     }
 
+
+
+    protected synchronized void bulidGoogleApiClient() {
+        client = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+        client.connect();
+
+    }
+
+
     private void showMeetingRoom() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getLayoutInflater();
         View add_view = inflater.inflate(R.layout.banned_alert_dialog_screen,null);
         EditText roomNameTxt = add_view.findViewById(R.id.name);
+        EditText roomDescTxt = add_view.findViewById(R.id.description);
         AppCompatButton addBtn = add_view.findViewById(R.id.ok);
         AppCompatButton cancelBtn = add_view.findViewById(R.id.cancel);
         builder.setView(add_view);
@@ -92,8 +140,9 @@ public class HomeScreen extends Fragment {
             @Override
             public void onClick(View view) {
                 String room = roomNameTxt.getText().toString();
+                description = roomDescTxt.getText().toString();
                 if (!TextUtils.isEmpty(room)) {
-                    saveRoom(room);
+                    saveRoom(room,description);
                     alertDialog.dismiss();
                 }else {
                     Toast.makeText(getActivity(), "Enter your room name", Toast.LENGTH_SHORT).show();
@@ -110,11 +159,16 @@ public class HomeScreen extends Fragment {
 
     }
 
-    private void saveRoom(String room) {
+    private void saveRoom(String room, String desc) {
         String key = roomDB.child(user.getUid()).push().getKey();
 
-        Room model = new Room(key,room,userId);
+        Room model = new Room(key,room, desc,userId,0.0,0.0);
         roomDB.child(user.getUid()).child(key).setValue(model);
+
+        Intent intent = new Intent(getActivity(), MapsActivity.class);
+        intent.putExtra("loc","address");
+        intent.putExtra("roomId",key);
+        startActivity(intent);
     }
 
     private void getUserList() {
@@ -163,9 +217,11 @@ public class HomeScreen extends Fragment {
                         if (snapshot.exists()){
                             User model = snapshot.getValue(User.class);
                             nameTxt.setText(model.getFullname());
-                            Glide.with(getActivity())
-                                    .load(model.getImageUrl())
-                                    .into(profileImg);
+                            if (mActivity != null) {
+                                Glide.with(mActivity)
+                                        .load(model.getImageUrl())
+                                        .into(profileImg);
+                            }
                         }
                     }
 
@@ -176,4 +232,98 @@ public class HomeScreen extends Fragment {
                 });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                bulidGoogleApiClient();
+                // Toast.makeText(MainScreen.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
+            } else {
+                //Toast.makeText(MainScreen.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(100);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(client, locationRequest, this);
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        currentLat = location.getLatitude();
+        currentLng = location.getLongitude();
+
+        Log.d("lat",""+ currentLat);
+        HashMap<String,Object> hashMap = new HashMap<>();
+        hashMap.put("lat",currentLat);
+        hashMap.put("lng",currentLng);
+        db.child(user.getUid()).updateChildren(hashMap);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mActivity = getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mActivity = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (client != null) {
+            client.disconnect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (client != null) {
+            client.disconnect();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (client != null) {
+            client.disconnect();
+        }
+    }
 }

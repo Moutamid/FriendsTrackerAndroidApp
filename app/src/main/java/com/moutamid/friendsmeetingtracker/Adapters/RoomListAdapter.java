@@ -1,6 +1,7 @@
 package com.moutamid.friendsmeetingtracker.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
+import com.moutamid.friendsmeetingtracker.MapsActivity;
 import com.moutamid.friendsmeetingtracker.Model.Room;
 import com.moutamid.friendsmeetingtracker.Model.User;
 import com.moutamid.friendsmeetingtracker.R;
@@ -45,6 +47,15 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         Glide.with(context)
                 .load(R.drawable.profile)
                 .into(holder.profileImg);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, MapsActivity.class);
+                intent.putExtra("loc","location");
+                intent.putExtra("list",model.getUsers());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

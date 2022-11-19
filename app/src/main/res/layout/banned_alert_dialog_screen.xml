@@ -21,7 +21,7 @@
             android:gravity="center"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:text="Write your Meeting Room Name here!"/>
+            android:text="Create Meeting Room"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -32,11 +32,44 @@
             android:hint="Room Name"
             android:padding="8dp"/>
 
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="8dp"
+            android:inputType="text"
+            android:id="@+id/description"
+            android:hint="Room Description"
+            android:padding="8dp"/>
+
+    <!--    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Location: "
+                android:textColor="@color/black"
+                android:textSize="15sp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/location"
+                android:src="@drawable/ic_baseline_add_location_24"/>
+
+        </LinearLayout>-->
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:text="Create"
+            android:text="Select Meeting Location"
             android:layout_marginTop="20dp"
             android:id="@+id/ok"
             android:visibility="visible"

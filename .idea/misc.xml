@@ -15,12 +15,15 @@
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/meeting_icon.xml" value="0.17" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/profile_icon.xml" value="0.17" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/selected_room.xml" value="0.17" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/drawable/shape_circle.xml" value="0.1" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_login_screen.xml" value="0.125" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_main.xml" value="0.14356884057971014" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_profile_image.xml" value="0.125" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_registration_screen.xml" value="0.14356884057971014" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/activity_splash_screen.xml" value="0.125" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/banned_alert_dialog_screen.xml" value="0.14356884057971014" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/custom_map_marker.xml" value="0.125" />
+        <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/custom_marker_layout.xml" value="0.1" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_hom_screen.xml" value="0.125" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_profile_screen.xml" value="0.125" />
         <entry key="..\:/New folder/Bridgetlinx/FriendsTrackerAndroidApp/app/src/main/res/layout/fragment_room_screen.xml" value="0.125" />
