@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,8 +43,56 @@ public class MeetingRooms extends Fragment {
         user = Constants.auth().getCurrentUser();
         db = Constants.databaseReference().child("Rooms");
         roomArrayList = new ArrayList<>();
-        getRooms();
+       // getRooms();
+        checkRooms();
         return root;
+    }
+
+    private void checkRooms() {
+        db.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    roomArrayList.clear();
+                    for (DataSnapshot ds: snapshot.getChildren()){
+                        String key = ds.getKey().toString();
+                        db.child(key).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot1) {
+                                        if (snapshot1.exists()){
+                                            for (DataSnapshot dataSnapshot : snapshot1.getChildren()){
+                                                Room model = dataSnapshot.getValue(Room.class);
+                                                for (int i = 0; i < model.getUsers().size(); i++){
+                                                    String users = model.getUsers().get(i);
+                                                    if (users.equals(user.getUid())){
+                                                        roomArrayList.add(model);
+                                                    }
+                                                }
+                                                if (key.equals(user.getUid())){
+                                                    roomArrayList.add(model);
+                                                }
+
+                                                adapter = new RoomListAdapter(getActivity(),roomArrayList);
+                                                recyclerView.setAdapter(adapter);
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void getRooms() {
@@ -51,7 +100,7 @@ public class MeetingRooms extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-                    roomArrayList.clear();
+
                     for (DataSnapshot ds : snapshot.getChildren()){
                         Room model = ds.getValue(Room.class);
                         roomArrayList.add(model);

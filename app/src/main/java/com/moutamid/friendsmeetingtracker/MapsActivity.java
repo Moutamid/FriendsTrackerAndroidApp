@@ -14,6 +14,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -53,12 +55,14 @@ import com.moutamid.friendsmeetingtracker.Model.ClusterMarker;
 import com.moutamid.friendsmeetingtracker.Model.User;
 import com.moutamid.friendsmeetingtracker.databinding.ActivityMapsBinding;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerDragListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
@@ -68,6 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference db,roomDB;
     private String uId;
     double currentLat, currentLng = 0;
+    private Marker currentMarker = null;
     private static final int REQUEST_LOCATION = 1;
     private ClusterManager<ClusterMarker> mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
@@ -75,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLngBounds mMapBoundary;
     private String loc = "";
     private String roomId = "";
+    private Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         db = Constants.databaseReference().child("Users");
         roomDB = Constants.databaseReference().child("Rooms");
         checkInternetAndGPSConnection();
+        geocoder = new Geocoder(MapsActivity.this);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
@@ -184,15 +191,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMyLocationEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        Toast.makeText(this, "" + currentLat, Toast.LENGTH_SHORT).show();
         if (loc.equals("address")){
             mMap.setOnMapClickListener(this);
-            mMap.setOnMarkerDragListener(this);
         }else {
             getMyMarker();
             addMapMarkers();
         }
 
     }
+
+
 
     private void getMyMarker() {
 
@@ -386,38 +395,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        mMap.addMarker(new MarkerOptions()
+        Log.d("marker",""+latLng.latitude);
+        if (currentMarker != null){
+            currentMarker.remove();
+        }
+        drawMarkers(latLng);
+    }
+
+    private void drawMarkers(LatLng latLng) {
+        try {
+            List<Address> addresseslist = geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
+
+            if (addresseslist.size() > 0){
+                Address address = addresseslist.get(0);
+                String streetAdr = address.getAddressLine(0);
+                currentMarker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                        .title(streetAdr));
+                HashMap<String,Object> hashMap = new HashMap<>();
+                hashMap.put("meeting_lat",latLng.latitude);
+                hashMap.put("meeting_lng",latLng.longitude);
+                roomDB.child(uId).child(roomId).updateChildren(hashMap);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void drawMarker(LatLng latLng){
+        MarkerOptions options = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-                .draggable(true));
-    }
+                .draggable(true);
 
-    @Override
-    public void onMarkerDrag(@NonNull Marker marker) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15f));
+        currentMarker = mMap.addMarker(options);
 
-    }
+   /*     mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDrag(@NonNull Marker marker) {
 
-    @Override
-    public void onMarkerDragEnd(@NonNull Marker marker) {
+            }
 
-        double lat = marker.getPosition().latitude;
-        double lng = marker.getPosition().longitude;
+            @Override
+            public void onMarkerDragEnd(@NonNull Marker marker) {
 
-        LatLng latLng = new LatLng(lat, lng);
-        //   mMap.addMarker(new MarkerOptions()
-        //         .position(latLng)
-        //       .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("meeting_lat",lat);
-        hashMap.put("meeting_lng",lng);
-        roomDB.child(uId).child(roomId).updateChildren(hashMap);
-    }
+                if (currentMarker != null){
+                    currentMarker.remove();
+                }
 
-    @Override
-    public void onMarkerDragStart(@NonNull Marker marker) {
+                double lat = marker.getPosition().latitude;
+                double lng = marker.getPosition().longitude;
+                Toast.makeText(MapsActivity.this, "" + lat, Toast.LENGTH_SHORT).show();
+                LatLng latLng = new LatLng(lat, lng);
+                drawMarker(latLng);
+                //   mMap.addMarker(new MarkerOptions()
+                //         .position(latLng)
+                //       .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                HashMap<String,Object> hashMap = new HashMap<>();
+                hashMap.put("meeting_lat",lat);
+                hashMap.put("meeting_lng",lng);
+                roomDB.child(uId).child(roomId).updateChildren(hashMap);
+            }
 
+            @Override
+            public void onMarkerDragStart(@NonNull Marker marker) {
+
+            }
+        });*/
     }
 }
