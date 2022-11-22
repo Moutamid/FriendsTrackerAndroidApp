@@ -1,6 +1,4 @@
-package com.moutamid.friendsmeetingtracker.Constants;
-
-import android.view.View;
+package com.example.friendsmeetingtracker.Constants;
 
 public interface ItemClickListener {
     void onItemClick(int position, boolean view);

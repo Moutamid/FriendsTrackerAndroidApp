@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker.Constants;
+package com.example.friendsmeetingtracker.Constants;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;

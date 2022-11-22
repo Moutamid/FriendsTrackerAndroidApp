@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker.Fragments;
+package com.example.friendsmeetingtracker.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,13 +36,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.moutamid.friendsmeetingtracker.Adapters.UserListAdapter;
-import com.moutamid.friendsmeetingtracker.Constants.Constants;
-import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
-import com.moutamid.friendsmeetingtracker.MapsActivity;
-import com.moutamid.friendsmeetingtracker.Model.Room;
-import com.moutamid.friendsmeetingtracker.Model.User;
-import com.moutamid.friendsmeetingtracker.R;
+import com.example.friendsmeetingtracker.Adapters.UserListAdapter;
+import com.example.friendsmeetingtracker.Constants.Constants;
+import com.example.friendsmeetingtracker.Constants.ItemClickListener;
+import com.example.friendsmeetingtracker.MapsActivity;
+import com.example.friendsmeetingtracker.Model.Room;
+import com.example.friendsmeetingtracker.Model.User;
+import com.example.friendsmeetingtracker.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,43 +73,44 @@ public class HomeScreen extends Fragment implements GoogleApiClient.ConnectionCa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_hom_screen,container,false);
-        nameTxt = root.findViewById(R.id.name);
-        profileImg = root.findViewById(R.id.profile);
-        recyclerView = root.findViewById(R.id.recyclerView);
-        createBtn = root.findViewById(R.id.create);
-        user = Constants.auth().getCurrentUser();
-        db = Constants.databaseReference().child("Users");
-        roomDB = Constants.databaseReference().child("Rooms");
-        userArrayList = new ArrayList<>();
-        mActivity = getActivity();
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            bulidGoogleApiClient();
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.CALL_PHONE}, REQUEST_LOCATION);
-        }
-        createBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (createBtn.getText().equals("Create Meeting Room")) {
-                    isCreated = true;
-                    getUserList();
-                    createBtn.setText("Next");
-                }else if (createBtn.getText().equals("Next")){
-                    //isCreated = false;
-                    //getUserList();
-                    //createBtn.setText("Create Meeting Room");
-                    showMeetingRoom();
-                }
+        if (isAdded()) {
+            nameTxt = root.findViewById(R.id.name);
+            profileImg = root.findViewById(R.id.profile);
+            recyclerView = root.findViewById(R.id.recyclerView);
+            createBtn = root.findViewById(R.id.create);
+            user = Constants.auth().getCurrentUser();
+            db = Constants.databaseReference().child("Users");
+            roomDB = Constants.databaseReference().child("Rooms");
+            userArrayList = new ArrayList<>();
+            mActivity = getActivity();
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                bulidGoogleApiClient();
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.CALL_PHONE}, REQUEST_LOCATION);
             }
-        });
-        getUserData();
-        getUserList();
-
+            createBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (createBtn.getText().equals("Create Meeting Room")) {
+                        isCreated = true;
+                        getUserList();
+                        createBtn.setText("Next");
+                    } else if (createBtn.getText().equals("Next")) {
+                        //isCreated = false;
+                        //getUserList();
+                        //createBtn.setText("Create Meeting Room");
+                        showMeetingRoom();
+                    }
+                }
+            });
+            getUserData();
+            getUserList();
+        }
         return root;
     }
 
@@ -160,10 +160,10 @@ public class HomeScreen extends Fragment implements GoogleApiClient.ConnectionCa
     }
 
     private void saveRoom(String room, String desc) {
-        String key = roomDB.child(user.getUid()).push().getKey();
-
+        String key = roomDB.push().getKey();
+        userId.add(user.getUid());
         Room model = new Room(key,room, desc,userId,0.0,0.0);
-        roomDB.child(user.getUid()).child(key).setValue(model);
+        roomDB.child(key).setValue(model);
 
         Intent intent = new Intent(getActivity(), MapsActivity.class);
         intent.putExtra("loc","address");
@@ -172,7 +172,7 @@ public class HomeScreen extends Fragment implements GoogleApiClient.ConnectionCa
     }
 
     private void getUserList() {
-        db.addValueEventListener(new ValueEventListener() {
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){

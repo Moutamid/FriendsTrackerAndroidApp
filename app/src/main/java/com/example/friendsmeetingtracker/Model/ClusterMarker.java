@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker.Model;
+package com.example.friendsmeetingtracker.Model;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;

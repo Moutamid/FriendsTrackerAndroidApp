@@ -1,12 +1,10 @@
-package com.moutamid.friendsmeetingtracker.Adapters;
+package com.example.friendsmeetingtracker.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,11 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
-import com.moutamid.friendsmeetingtracker.MapsActivity;
-import com.moutamid.friendsmeetingtracker.Model.Room;
-import com.moutamid.friendsmeetingtracker.Model.User;
-import com.moutamid.friendsmeetingtracker.R;
+import com.example.friendsmeetingtracker.Constants.ItemClickListener;
+import com.example.friendsmeetingtracker.MapsActivity;
+import com.example.friendsmeetingtracker.Model.Room;
+import com.example.friendsmeetingtracker.R;
 
 import java.util.ArrayList;
 
@@ -53,6 +50,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
                 Intent intent = new Intent(context, MapsActivity.class);
                 intent.putExtra("loc","location");
                 intent.putExtra("list",model.getUsers());
+                intent.putExtra("roomId",model.getId());
                 context.startActivity(intent);
             }
         });

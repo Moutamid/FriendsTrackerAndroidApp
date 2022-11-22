@@ -1,10 +1,9 @@
-package com.moutamid.friendsmeetingtracker.Fragments;
+package com.example.friendsmeetingtracker.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,13 +15,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.moutamid.friendsmeetingtracker.Adapters.RoomListAdapter;
-import com.moutamid.friendsmeetingtracker.Adapters.UserListAdapter;
-import com.moutamid.friendsmeetingtracker.Constants.Constants;
-import com.moutamid.friendsmeetingtracker.Constants.ItemClickListener;
-import com.moutamid.friendsmeetingtracker.Model.Room;
-import com.moutamid.friendsmeetingtracker.Model.User;
-import com.moutamid.friendsmeetingtracker.R;
+import com.example.friendsmeetingtracker.Adapters.RoomListAdapter;
+import com.example.friendsmeetingtracker.Constants.Constants;
+import com.example.friendsmeetingtracker.Model.Room;
+import com.example.friendsmeetingtracker.R;
 
 import java.util.ArrayList;
 
@@ -37,14 +33,15 @@ public class MeetingRooms extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View root = inflater.inflate(R.layout.fragment_room_screen,container,false);
-        recyclerView = root.findViewById(R.id.recyclerView);
-        user = Constants.auth().getCurrentUser();
-        db = Constants.databaseReference().child("Rooms");
-        roomArrayList = new ArrayList<>();
-       // getRooms();
-        checkRooms();
+        if (isAdded()) {
+            recyclerView = root.findViewById(R.id.recyclerView);
+            user = Constants.auth().getCurrentUser();
+            db = Constants.databaseReference().child("Rooms");
+            roomArrayList = new ArrayList<>();
+            getRooms();
+        }
+        //checkRooms();
         return root;
     }
 
@@ -96,14 +93,19 @@ public class MeetingRooms extends Fragment {
     }
 
     private void getRooms() {
-        db.child(user.getUid()).addValueEventListener(new ValueEventListener() {
+        db.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
 
                     for (DataSnapshot ds : snapshot.getChildren()){
                         Room model = ds.getValue(Room.class);
-                        roomArrayList.add(model);
+                        for (int i = 0; i < model.getUsers().size(); i++){
+                            String users = model.getUsers().get(i);
+                            if (users.equals(user.getUid())){
+                                roomArrayList.add(model);
+                            }
+                        }
                     }
                     adapter = new RoomListAdapter(getActivity(),roomArrayList);
                     recyclerView.setAdapter(adapter);

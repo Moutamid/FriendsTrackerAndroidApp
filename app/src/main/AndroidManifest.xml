@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.moutamid.friendsmeetingtracker">
+    package="com.example.friendsmeetingtracker">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
@@ -42,20 +42,20 @@
             android:value="AIzaSyBcgg_QpZ2O60W4UhMd28XbBclcQb8oCR4" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="com.example.friendsmeetingtracker.MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".ProfileImage"
+            android:name="com.example.friendsmeetingtracker.ProfileImage"
             android:exported="false" />
         <activity
-            android:name=".RegistrationScreen"
+            android:name="com.example.friendsmeetingtracker.RegistrationScreen"
             android:exported="false" />
         <activity
-            android:name=".LoginScreen"
+            android:name="com.example.friendsmeetingtracker.LoginScreen"
             android:exported="false" />
         <activity
-            android:name=".SplashScreen"
+            android:name="com.example.friendsmeetingtracker.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,7 +64,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.friendsmeetingtracker.MainActivity"
             android:exported="false" />
     </application>
 

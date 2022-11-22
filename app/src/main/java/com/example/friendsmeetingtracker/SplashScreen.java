@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker;
+package com.example.friendsmeetingtracker;
 
 import androidx.appcompat.app.AppCompatActivity;
 

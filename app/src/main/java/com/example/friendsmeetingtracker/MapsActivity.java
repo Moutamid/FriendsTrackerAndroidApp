@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker;
+package com.example.friendsmeetingtracker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,8 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -24,8 +22,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -42,18 +38,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.ui.IconGenerator;
-import com.moutamid.friendsmeetingtracker.Constants.Constants;
-import com.moutamid.friendsmeetingtracker.Model.ClusterMarker;
-import com.moutamid.friendsmeetingtracker.Model.User;
-import com.moutamid.friendsmeetingtracker.databinding.ActivityMapsBinding;
+import com.example.friendsmeetingtracker.Constants.Constants;
+import com.example.friendsmeetingtracker.Model.ClusterMarker;
+import com.example.friendsmeetingtracker.Model.Room;
+import com.example.friendsmeetingtracker.Model.User;
+import com.example.friendsmeetingtracker.databinding.ActivityMapsBinding;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String loc = "";
     private String roomId = "";
     private Geocoder geocoder;
+    private double lat,lng = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,21 +93,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         uId = Constants.auth().getCurrentUser().getUid();
         db = Constants.databaseReference().child("Users");
         roomDB = Constants.databaseReference().child("Rooms");
+
         checkInternetAndGPSConnection();
         geocoder = new Geocoder(MapsActivity.this);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
             bulidGoogleApiClient();
 
         } else {
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.CALL_PHONE}, REQUEST_LOCATION);
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
             showGPSDialogBox();
         }
+
+        binding.save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HashMap<String,Object> hashMap = new HashMap<>();
+                hashMap.put("meeting_lat",lat);
+                hashMap.put("meeting_lng",lng);
+                roomDB.child(roomId).updateChildren(hashMap);
+                Intent intent = new Intent(MapsActivity.this,MainActivity.class);
+                intent.putExtra("redirect","meeting;");
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 
@@ -191,32 +199,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMyLocationEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        Toast.makeText(this, "" + currentLat, Toast.LENGTH_SHORT).show();
+
         if (loc.equals("address")){
             mMap.setOnMapClickListener(this);
+            binding.save.setVisibility(View.VISIBLE);
         }else {
-            getMyMarker();
-            addMapMarkers();
+            for (String id : userList) {
+                getMyMarker(id);
+            }
+          //  addMapMarkers();
+            getMeetingLocation();
+            binding.save.setVisibility(View.GONE);
         }
 
     }
 
+    private void getMeetingLocation() {
+        roomDB.child(roomId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            Room model = snapshot.getValue(Room.class);
+                            LatLng latLng = new LatLng(model.getMeeting_lat(),model.getMeeting_lng());
+                            drawMarkers(latLng);
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-    private void getMyMarker() {
+                    }
+                });
+    }
+
+    private void getMyMarker(String id) {
 
         if(mClusterManager == null){
             mClusterManager = new ClusterManager<ClusterMarker>(this, mMap);
         }
         if(mClusterManagerRenderer == null){
             mClusterManagerRenderer = new MyClusterManagerRenderer(
-                    this,
+                    MapsActivity.this,
                     mMap,
                     mClusterManager
             );
             mClusterManager.setRenderer(mClusterManagerRenderer);
         }
-        db.child(uId)
+        db.child(id)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -224,17 +254,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             User model = snapshot.getValue(User.class);
 
                             String avatar = model.getImageUrl();
+                            String snippet = "";
+
+                            if (id.equals(uId)){
+                                snippet = "THIS IS ME";
+                            }else {
+                                snippet = model.getFullname();
+                            }
 
                             ClusterMarker newClusterMarker = new ClusterMarker(
                                     new LatLng(model.getLat(), model.getLng()),
                                     model.getFullname(),
-                                    "THIS IS ME",
+                                    snippet,
                                     avatar
                             );
                             mClusterManager.addItem(newClusterMarker);
                             mClusterMarkers.add(newClusterMarker);
                             mClusterManager.cluster();
-                            setCameraView(model);
+        //                    setCameraView(model);
                         }
                     }
 
@@ -259,26 +296,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
             for(String id: userList){
-                db.addValueEventListener(new ValueEventListener() {
+                db.child(id)
+                        .addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 if (snapshot.exists()){
-                                    for (DataSnapshot ds : snapshot.getChildren()) {
-                                        User users = ds.getValue(User.class);
-                                        if (users.getId().equals(id)) {
-                                            String avatar = users.getImageUrl();
+                                    User users = snapshot.getValue(User.class);
+                                    String avatar = users.getImageUrl();
 
-                                            ClusterMarker newClusterMarker = new ClusterMarker(
-                                                    new LatLng(users.getLat(), users.getLng()),
-                                                    users.getFullname(),
-                                                    "snippet",
-                                                    avatar
-                                            );
-                                            mClusterManager.addItem(newClusterMarker);
-                                            mClusterMarkers.add(newClusterMarker);
+                                    ClusterMarker newClusterMarker = new ClusterMarker(
+                                            new LatLng(users.getLat(), users.getLng()),
+                                            users.getFullname(),
+                                            "snippet",
+                                            avatar
+                                    );
+                                    mClusterManager.addItem(newClusterMarker);
+                                    mClusterMarkers.add(newClusterMarker);
 
-                                        }
-                                    }
                                 }
                             }
 
@@ -415,10 +449,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .position(latLng)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                         .title(streetAdr));
-                HashMap<String,Object> hashMap = new HashMap<>();
-                hashMap.put("meeting_lat",latLng.latitude);
-                hashMap.put("meeting_lng",latLng.longitude);
-                roomDB.child(uId).child(roomId).updateChildren(hashMap);
+
+                lat = latLng.latitude;
+                lng = latLng.longitude;
             }
 
         } catch (IOException e) {
@@ -435,38 +468,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15f));
         currentMarker = mMap.addMarker(options);
+    }
 
-   /*     mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDrag(@NonNull Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDragEnd(@NonNull Marker marker) {
-
-                if (currentMarker != null){
-                    currentMarker.remove();
-                }
-
-                double lat = marker.getPosition().latitude;
-                double lng = marker.getPosition().longitude;
-                Toast.makeText(MapsActivity.this, "" + lat, Toast.LENGTH_SHORT).show();
-                LatLng latLng = new LatLng(lat, lng);
-                drawMarker(latLng);
-                //   mMap.addMarker(new MarkerOptions()
-                //         .position(latLng)
-                //       .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                HashMap<String,Object> hashMap = new HashMap<>();
-                hashMap.put("meeting_lat",lat);
-                hashMap.put("meeting_lng",lng);
-                roomDB.child(uId).child(roomId).updateChildren(hashMap);
-            }
-
-            @Override
-            public void onMarkerDragStart(@NonNull Marker marker) {
-
-            }
-        });*/
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(MapsActivity.this,MainActivity.class));
+        finish();
     }
 }

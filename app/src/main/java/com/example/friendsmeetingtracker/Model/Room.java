@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker.Model;
+package com.example.friendsmeetingtracker.Model;
 
 import java.util.ArrayList;
 

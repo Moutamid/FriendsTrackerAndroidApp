@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:890062472575:android:a70e281ab5589aff04464a",
+        "mobilesdk_app_id": "1:890062472575:android:cc88df8fa8d1cd8304464a",
         "android_client_info": {
-          "package_name": "com.moutamid.friendsmeetingtracker"
+          "package_name": "com.example.friendsmeetingtracker"
         }
       },
       "oauth_client": [
         {
-          "client_id": "890062472575-9ue3p17qagi279vokovts45p93mjeipq.apps.googleusercontent.com",
+          "client_id": "890062472575-a5estuuf4lmd8a32g4mu3bpk3v9vd5ls.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.moutamid.friendsmeetingtracker",
+            "package_name": "com.example.friendsmeetingtracker",
             "certificate_hash": "309bc07aea5fffbbbf69c8b8435d380078ec8eba"
           }
         },
@@ -29,7 +29,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBcgg_QpZ2O60W4UhMd28XbBclcQb8oCR4"
+          "current_key": "AIzaSyAyGSYphpIh40M7fze_LUKzkSi4dDG8OQY"
         }
       ],
       "services": {

@@ -1,4 +1,4 @@
-package com.moutamid.friendsmeetingtracker;
+package com.example.friendsmeetingtracker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,8 +15,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
-import com.moutamid.friendsmeetingtracker.Constants.Constants;
-import com.moutamid.friendsmeetingtracker.databinding.ActivityLoginScreenBinding;
+import com.example.friendsmeetingtracker.Constants.Constants;
+import com.example.friendsmeetingtracker.databinding.ActivityLoginScreenBinding;
 
 public class LoginScreen extends AppCompatActivity {
 
